@@ -160,7 +160,9 @@ class GoldTransformer:
             with self.snowflake as sf:
                 # Check if already populated
                 existing = sf.execute_query("SELECT COUNT(*) as cnt FROM GOLD.gold_dim_date")
-                if existing and existing[0]['CNT'] > 0:
+                # Handle case-insensitive column name
+                count_key = 'CNT' if 'CNT' in existing[0] else 'cnt'
+                if existing and existing[0].get(count_key, 0) > 0:
                     logger.info("Date dimension already populated")
                     return 0
                 

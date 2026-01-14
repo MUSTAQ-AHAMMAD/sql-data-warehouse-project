@@ -168,15 +168,20 @@ class SallaAPIConnector:
                 logger.info(f"Fetching {endpoint_method} page {page}")
                 response = fetch_method(page=page)
                 
-                # Handle different response structures
+                # Handle different response structures with validation
                 data = response.get('data', [])
                 if not data:
+                    logger.warning(f"No data returned for {endpoint_method} page {page}")
                     break
                 
                 all_records.extend(data)
                 
-                # Check pagination info
+                # Check pagination info (handle missing pagination gracefully)
                 pagination = response.get('pagination', {})
+                if not pagination:
+                    logger.info(f"No pagination info, assuming last page for {endpoint_method}")
+                    break
+                    
                 if not pagination.get('hasMorePages', False):
                     break
                 

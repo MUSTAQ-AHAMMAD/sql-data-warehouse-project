@@ -114,7 +114,7 @@ def check_required_files() -> List[Tuple[bool, str]]:
 def main():
     """Run all validation checks."""
     print("=" * 70)
-    print("SQL Data Warehouse Project - Installation Validation")
+    print("Salla API to Snowflake Data Warehouse - Installation Validation")
     print("=" * 70)
     
     all_passed = True

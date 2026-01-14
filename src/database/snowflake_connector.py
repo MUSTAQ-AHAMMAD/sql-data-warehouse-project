@@ -167,6 +167,16 @@ class SnowflakeConnector:
             # Use pandas to_sql with Snowflake connector
             from snowflake.connector.pandas_tools import write_pandas
             
+            # Check if table exists before attempting to load
+            cursor = self.connection.cursor()
+            try:
+                cursor.execute(f"SHOW TABLES LIKE '{table_name}'")
+                if not cursor.fetchone():
+                    logger.warning(f"Table {table_name} does not exist. It must be created first.")
+                    raise ValueError(f"Table {table_name} does not exist")
+            finally:
+                cursor.close()
+            
             success, nchunks, nrows, _ = write_pandas(
                 self.connection,
                 df,

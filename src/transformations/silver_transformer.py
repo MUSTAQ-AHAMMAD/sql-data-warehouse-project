@@ -267,27 +267,29 @@ class SilverTransformer:
             'metadata_description': 'meta_description'
         })
         
-        # Calculate profit margin
+        # Calculate profit margin (vectorized for performance)
         if 'regular_price' in df.columns and 'cost_price' in df.columns:
-            df['profit_margin'] = df.apply(
-                lambda row: ((row.get('regular_price', 0) - row.get('cost_price', 0)) / 
-                           row.get('regular_price', 1) * 100) if row.get('regular_price', 0) > 0 else 0,
-                axis=1
+            df['profit_margin'] = 0.0
+            mask = df['regular_price'] > 0
+            df.loc[mask, 'profit_margin'] = (
+                (df.loc[mask, 'regular_price'] - df.loc[mask, 'cost_price']) / 
+                df.loc[mask, 'regular_price'] * 100
             )
         
-        # Calculate discount percentage
+        # Calculate discount percentage (vectorized for performance)
         if 'regular_price' in df.columns and 'sale_price' in df.columns:
-            df['discount_percentage'] = df.apply(
-                lambda row: ((row.get('regular_price', 0) - row.get('sale_price', 0)) / 
-                           row.get('regular_price', 1) * 100) if row.get('regular_price', 0) > 0 else 0,
-                axis=1
+            df['discount_percentage'] = 0.0
+            mask = df['regular_price'] > 0
+            df.loc[mask, 'discount_percentage'] = (
+                (df.loc[mask, 'regular_price'] - df.loc[mask, 'sale_price']) / 
+                df.loc[mask, 'regular_price'] * 100
             )
         
-        # Create is_active flag
+        # Create is_active flag (vectorized for performance)
         if 'product_status' in df.columns:
-            df['is_active'] = df['product_status'].apply(
-                lambda x: x.upper() in ['ACTIVE', 'AVAILABLE', 'IN_STOCK'] if pd.notna(x) else False
-            )
+            df['is_active'] = df['product_status'].str.upper().isin(
+                ['ACTIVE', 'AVAILABLE', 'IN_STOCK']
+            ).fillna(False)
         
         # Remove nulls
         df = df.dropna(subset=['product_id'])
