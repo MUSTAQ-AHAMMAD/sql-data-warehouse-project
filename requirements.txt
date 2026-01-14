@@ -1,10 +1,15 @@
 # Airflow
 apache-airflow==2.10.4
 apache-airflow-providers-snowflake==6.4.0
+apache-airflow-providers-microsoft-mssql==3.6.0
 
-# Snowflake
+# Snowflake (Cloud)
 snowflake-connector-python==3.13.1
 snowflake-sqlalchemy==1.7.2
+
+# SQL Server (On-Premise)
+pyodbc==5.0.1
+pymssql==2.2.11
 
 # API and HTTP
 requests==2.31.0
@@ -13,6 +18,9 @@ tenacity==8.2.3
 # Data Processing
 pandas==2.1.4
 numpy==1.26.3
+
+# Database
+sqlalchemy==2.0.25
 
 # Configuration
 python-dotenv==1.0.0
