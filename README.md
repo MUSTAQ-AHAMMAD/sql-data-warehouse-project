@@ -132,7 +132,7 @@ sql-data-warehouse-project/
 - Python 3.8 or higher
 - Snowflake account with database credentials
 - Salla API access token
-- Apache Airflow 2.8.0 or higher
+- Apache Airflow 2.10.4 or higher
 - Sufficient permissions to create databases and tables in Snowflake
 
 ## Installation

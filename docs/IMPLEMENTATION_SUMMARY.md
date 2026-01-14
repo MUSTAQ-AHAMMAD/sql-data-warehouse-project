@@ -237,8 +237,8 @@ This implementation provides a complete, production-ready ETL pipeline integrati
 
 ### Technology Stack
 - **Python**: 3.8+
-- **Airflow**: 2.8.0
-- **Snowflake**: Connector 3.6.0
+- **Airflow**: 2.10.4 (security-patched)
+- **Snowflake**: Connector 3.13.1 (security-patched)
 - **Pandas**: 2.1.4
 - **Requests**: 2.31.0
 - **Tenacity**: 8.2.3
