@@ -1,42 +1,46 @@
-# Airflow
-apache-airflow==2.10.4
-apache-airflow-providers-snowflake==6.4.0
-apache-airflow-providers-microsoft-mssql==3.6.0
+# Airflow - Core (this will pull in compatible versions of Flask, SQLAlchemy, etc.)
+apache-airflow==2.7.2
 
-# Snowflake (Cloud)
-snowflake-connector-python==3.13.1
-snowflake-sqlalchemy==1.7.2
+# Airflow Providers
+apache-airflow-providers-snowflake==5.1.0
+apache-airflow-providers-microsoft-mssql==3.4.0
+
+# Snowflake (Cloud) - Version compatible with Airflow
+snowflake-connector-python==3.4.0
+snowflake-sqlalchemy==1.5.0
 
 # SQL Server (On-Premise)
 pyodbc==5.0.1
 pymssql==2.2.11
 
-# API and HTTP
-requests==2.31.0
+# API and HTTP - Airflow already includes requests
 tenacity==8.2.3
 
-# Data Processing
-pandas==2.1.4
-numpy==1.26.3
-
-# Database
-sqlalchemy==2.0.25
+# Data Processing - Airflow includes compatible versions
+# pandas and numpy will be installed as Airflow dependencies
 
 # Configuration
 python-dotenv==1.0.0
 
-# Utilities
-pytz==2023.3
+# Utilities - Airflow already includes pytz
 
 # Data Validation
 great-expectations==0.18.8
 
-# Web Dashboard
-Flask==3.0.0
-Flask-CORS==4.0.0
-
 # Visualization
 plotly==5.18.0
 
-# Configuration
-PyYAML==6.0.1
+# Web Dashboard - Flask and Flask-CORS will be installed by Airflow
+# Airflow 2.7.2 uses Flask 2.2.x which is compatible
+
+# Note: Don't specify versions for packages that Airflow already manages:
+# - Flask (Airflow uses 2.2.x)
+# - SQLAlchemy (Airflow uses 1.4.x)
+# - requests (included with Airflow)
+# - PyYAML (included with Airflow)
+# - pandas (included with Airflow)
+# - numpy (included with Airflow)
+# - pytz (included with Airflow)
+
+# Additional packages not managed by Airflow
+Flask-CORS==4.0.0

@@ -1,130 +1,91 @@
--- Silver Layer Schema: Cleaned and enriched data
--- This layer contains validated, deduplicated, and standardized data
+-- ============================================
+-- Silver Layer Tables - SQL Server
+-- ============================================
 
-USE DATABASE SALLA_DWH;
-CREATE SCHEMA IF NOT EXISTS SILVER;
-USE SCHEMA SILVER;
+USE SALLA_DWH;
+GO
 
--- Silver Orders Table
--- Cleaned and enriched order data
-CREATE TABLE IF NOT EXISTS silver_orders (
-    order_id NUMBER PRIMARY KEY,
-    reference_id VARCHAR(100),
-    order_status VARCHAR(50),
-    order_date TIMESTAMP_NTZ,
-    customer_id NUMBER,
-    customer_name VARCHAR(255),
-    customer_email VARCHAR(255),
-    customer_mobile VARCHAR(50),
-    payment_method VARCHAR(100),
-    shipping_method VARCHAR(100),
-    
-    -- Address fields (extracted from VARIANT)
-    shipping_country VARCHAR(100),
-    shipping_city VARCHAR(100),
-    shipping_address_line VARCHAR(500),
-    shipping_postal_code VARCHAR(20),
-    
-    -- Financial fields
-    subtotal_amount FLOAT,
-    discount_amount FLOAT,
-    tax_amount FLOAT,
-    shipping_cost FLOAT,
-    total_amount FLOAT,
-    currency VARCHAR(10),
-    
-    -- Metadata
-    coupon_code VARCHAR(100),
-    notes VARCHAR(1000),
-    items_count NUMBER,
-    
-    -- Audit fields
-    created_at TIMESTAMP_NTZ,
-    updated_at TIMESTAMP_NTZ,
-    processed_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+-- Create Silver schema
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'silver')
+BEGIN
+    EXEC('CREATE SCHEMA silver');
+END
+GO
+
+-- Drop tables if they exist
+IF OBJECT_ID('silver.silver_orders', 'U') IS NOT NULL DROP TABLE silver.silver_orders;
+IF OBJECT_ID('silver.silver_customers', 'U') IS NOT NULL DROP TABLE silver.silver_customers;
+IF OBJECT_ID('silver.silver_products', 'U') IS NOT NULL DROP TABLE silver.silver_products;
+GO
+
+-- Create Silver Orders Table
+CREATE TABLE silver.silver_orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_number NVARCHAR(50),
+    order_date DATE,
+    order_time TIME,
+    status NVARCHAR(50),
+    payment_method NVARCHAR(50),
+    shipping_method NVARCHAR(50),
+    subtotal DECIMAL(15,2),
+    tax DECIMAL(15,2),
+    shipping_cost DECIMAL(15,2),
+    discount DECIMAL(15,2),
+    total_amount DECIMAL(15,2),
+    currency NVARCHAR(10),
+    notes NVARCHAR(MAX),
+    processed_at DATETIME2 DEFAULT GETDATE(),
+    created_at DATETIME2 DEFAULT GETDATE()
 );
+GO
 
--- Silver Customers Table
--- Cleaned and enriched customer data
-CREATE TABLE IF NOT EXISTS silver_customers (
-    customer_id NUMBER PRIMARY KEY,
-    full_name VARCHAR(500),
-    first_name VARCHAR(255),
-    last_name VARCHAR(255),
-    email VARCHAR(255),
-    mobile VARCHAR(50),
-    mobile_code VARCHAR(10),
-    
-    -- Location fields
-    country VARCHAR(100),
-    city VARCHAR(100),
-    
-    -- Demographics
-    gender VARCHAR(20),
-    birthday DATE,
-    age_group VARCHAR(50),
-    
-    -- Status
-    customer_status VARCHAR(50),
-    
-    -- Metadata
-    avatar_url VARCHAR(500),
-    registration_date TIMESTAMP_NTZ,
-    last_updated TIMESTAMP_NTZ,
-    processed_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+-- Create Silver Customers Table
+CREATE TABLE silver.silver_customers (
+    customer_id INT PRIMARY KEY,
+    first_name NVARCHAR(100),
+    last_name NVARCHAR(100),
+    email NVARCHAR(255),
+    phone NVARCHAR(50),
+    country NVARCHAR(100),
+    city NVARCHAR(100),
+    address NVARCHAR(500),
+    postal_code NVARCHAR(20),
+    customer_type NVARCHAR(50),
+    registration_date DATE,
+    is_active BIT DEFAULT 1,
+    processed_at DATETIME2 DEFAULT GETDATE(),
+    created_at DATETIME2 DEFAULT GETDATE()
 );
+GO
 
--- Silver Products Table
--- Cleaned and enriched product data
-CREATE TABLE IF NOT EXISTS silver_products (
-    product_id NUMBER PRIMARY KEY,
-    product_name VARCHAR(500),
-    product_description VARCHAR(5000),
-    
-    -- Pricing
-    regular_price FLOAT,
-    sale_price FLOAT,
-    cost_price FLOAT,
-    profit_margin FLOAT,
-    discount_percentage FLOAT,
-    
-    -- Inventory
-    sku VARCHAR(100),
-    quantity_available NUMBER,
-    is_unlimited BOOLEAN,
-    
-    -- Classification
-    product_type VARCHAR(50),
-    product_status VARCHAR(50),
-    is_active BOOLEAN,
-    
-    -- Physical attributes
-    weight FLOAT,
-    weight_unit VARCHAR(20),
-    
-    -- Flags
-    with_tax BOOLEAN,
-    is_taxable BOOLEAN,
-    requires_shipping BOOLEAN,
-    
-    -- SEO
-    meta_title VARCHAR(500),
-    meta_description VARCHAR(1000),
-    
-    -- Audit fields
-    created_at TIMESTAMP_NTZ,
-    updated_at TIMESTAMP_NTZ,
-    processed_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+-- Create Silver Products Table
+CREATE TABLE silver.silver_products (
+    product_id INT PRIMARY KEY,
+    product_name NVARCHAR(255),
+    sku NVARCHAR(100),
+    description NVARCHAR(MAX),
+    category NVARCHAR(100),
+    brand NVARCHAR(100),
+    price DECIMAL(15,2),
+    cost DECIMAL(15,2),
+    currency NVARCHAR(10),
+    stock_quantity INT,
+    is_active BIT DEFAULT 1,
+    weight DECIMAL(10,2),
+    dimensions NVARCHAR(100),
+    processed_at DATETIME2 DEFAULT GETDATE(),
+    created_at DATETIME2 DEFAULT GETDATE()
 );
+GO
 
--- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS idx_silver_orders_customer ON silver_orders(customer_id);
-CREATE INDEX IF NOT EXISTS idx_silver_orders_date ON silver_orders(order_date);
-CREATE INDEX IF NOT EXISTS idx_silver_orders_status ON silver_orders(order_status);
+-- Create indexes
+CREATE INDEX idx_silver_orders_customer ON silver.silver_orders(customer_id);
+CREATE INDEX idx_silver_orders_date ON silver.silver_orders(order_date);
+CREATE INDEX idx_silver_orders_status ON silver.silver_orders(status);
+CREATE INDEX idx_silver_customers_email ON silver.silver_customers(email);
+CREATE INDEX idx_silver_products_sku ON silver.silver_products(sku);
+GO
 
-CREATE INDEX IF NOT EXISTS idx_silver_customers_email ON silver_customers(email);
-CREATE INDEX IF NOT EXISTS idx_silver_customers_country ON silver_customers(country);
-
-CREATE INDEX IF NOT EXISTS idx_silver_products_sku ON silver_products(sku);
-CREATE INDEX IF NOT EXISTS idx_silver_products_status ON silver_products(product_status);
-CREATE INDEX IF NOT EXISTS idx_silver_products_active ON silver_products(is_active);
+PRINT '✅ Silver layer tables created successfully';
+GO

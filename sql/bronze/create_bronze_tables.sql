@@ -1,101 +1,62 @@
--- Bronze Layer Schema: Raw data from Salla API
--- This layer stores data as close to the source as possible
+-- ============================================
+-- Bronze Layer Tables - SQL Server
+-- ============================================
 
--- Create database and schema if not exists
-CREATE DATABASE IF NOT EXISTS SALLA_DWH;
-USE DATABASE SALLA_DWH;
-CREATE SCHEMA IF NOT EXISTS BRONZE;
-USE SCHEMA BRONZE;
+-- Use the database
+USE SALLA_DWH;
+GO
 
--- Bronze Orders Table
--- Stores raw order data from Salla API
-CREATE TABLE IF NOT EXISTS bronze_orders (
-    id NUMBER PRIMARY KEY,
-    reference_id VARCHAR(100),
-    status VARCHAR(50),
-    amount FLOAT,
-    currency VARCHAR(10),
-    customer_id NUMBER,
-    customer_name VARCHAR(255),
-    customer_email VARCHAR(255),
-    customer_mobile VARCHAR(50),
-    payment_method VARCHAR(100),
-    shipping_method VARCHAR(100),
-    shipping_address VARIANT,
-    items VARIANT,
-    created_at TIMESTAMP_NTZ,
-    updated_at TIMESTAMP_NTZ,
-    notes VARCHAR(1000),
-    coupon_code VARCHAR(100),
-    discount_amount FLOAT,
-    tax_amount FLOAT,
-    shipping_cost FLOAT,
-    total_amount FLOAT,
-    loaded_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    source_system VARCHAR(50) DEFAULT 'SALLA_API'
+-- Create Bronze schema if not exists
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'bronze')
+BEGIN
+    EXEC('CREATE SCHEMA bronze');
+END
+GO
+
+-- Drop tables if they exist (for clean setup)
+IF OBJECT_ID('bronze.bronze_orders', 'U') IS NOT NULL DROP TABLE bronze.bronze_orders;
+IF OBJECT_ID('bronze.bronze_customers', 'U') IS NOT NULL DROP TABLE bronze.bronze_customers;
+IF OBJECT_ID('bronze.bronze_products', 'U') IS NOT NULL DROP TABLE bronze.bronze_products;
+GO
+
+-- Create Bronze Orders Table
+CREATE TABLE bronze.bronze_orders (
+    order_id INT PRIMARY KEY,
+    raw_data NVARCHAR(MAX),
+    api_response NVARCHAR(MAX),
+    source_system NVARCHAR(50) DEFAULT 'salla',
+    extracted_at DATETIME2 DEFAULT GETDATE(),
+    created_at DATETIME2 DEFAULT GETDATE()
 );
+GO
 
--- Bronze Customers Table
--- Stores raw customer data from Salla API
-CREATE TABLE IF NOT EXISTS bronze_customers (
-    id NUMBER PRIMARY KEY,
-    first_name VARCHAR(255),
-    last_name VARCHAR(255),
-    email VARCHAR(255),
-    mobile VARCHAR(50),
-    mobile_code VARCHAR(10),
-    country VARCHAR(100),
-    city VARCHAR(100),
-    gender VARCHAR(20),
-    birthday DATE,
-    avatar VARCHAR(500),
-    addresses VARIANT,
-    created_at TIMESTAMP_NTZ,
-    updated_at TIMESTAMP_NTZ,
-    status VARCHAR(50),
-    notes VARCHAR(1000),
-    loaded_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    source_system VARCHAR(50) DEFAULT 'SALLA_API'
+-- Create Bronze Customers Table
+CREATE TABLE bronze.bronze_customers (
+    customer_id INT PRIMARY KEY,
+    raw_data NVARCHAR(MAX),
+    api_response NVARCHAR(MAX),
+    source_system NVARCHAR(50) DEFAULT 'salla',
+    extracted_at DATETIME2 DEFAULT GETDATE(),
+    created_at DATETIME2 DEFAULT GETDATE()
 );
+GO
 
--- Bronze Products Table
--- Stores raw product data from Salla API
-CREATE TABLE IF NOT EXISTS bronze_products (
-    id NUMBER PRIMARY KEY,
-    name VARCHAR(500),
-    description VARCHAR(5000),
-    price FLOAT,
-    sale_price FLOAT,
-    cost_price FLOAT,
-    sku VARCHAR(100),
-    quantity NUMBER,
-    unlimited_quantity BOOLEAN,
-    status VARCHAR(50),
-    type VARCHAR(50),
-    weight FLOAT,
-    weight_unit VARCHAR(20),
-    images VARIANT,
-    categories VARIANT,
-    options VARIANT,
-    metadata_title VARCHAR(500),
-    metadata_description VARCHAR(1000),
-    created_at TIMESTAMP_NTZ,
-    updated_at TIMESTAMP_NTZ,
-    with_tax BOOLEAN,
-    is_taxable BOOLEAN,
-    require_shipping BOOLEAN,
-    loaded_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    source_system VARCHAR(50) DEFAULT 'SALLA_API'
+-- Create Bronze Products Table
+CREATE TABLE bronze.bronze_products (
+    product_id INT PRIMARY KEY,
+    raw_data NVARCHAR(MAX),
+    api_response NVARCHAR(MAX),
+    source_system NVARCHAR(50) DEFAULT 'salla',
+    extracted_at DATETIME2 DEFAULT GETDATE(),
+    created_at DATETIME2 DEFAULT GETDATE()
 );
+GO
 
--- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS idx_bronze_orders_customer ON bronze_orders(customer_id);
-CREATE INDEX IF NOT EXISTS idx_bronze_orders_created ON bronze_orders(created_at);
-CREATE INDEX IF NOT EXISTS idx_bronze_orders_status ON bronze_orders(status);
+-- Create indexes
+CREATE INDEX idx_bronze_orders_extracted ON bronze.bronze_orders(extracted_at);
+CREATE INDEX idx_bronze_customers_extracted ON bronze.bronze_customers(extracted_at);
+CREATE INDEX idx_bronze_products_extracted ON bronze.bronze_products(extracted_at);
+GO
 
-CREATE INDEX IF NOT EXISTS idx_bronze_customers_email ON bronze_customers(email);
-CREATE INDEX IF NOT EXISTS idx_bronze_customers_created ON bronze_customers(created_at);
-
-CREATE INDEX IF NOT EXISTS idx_bronze_products_sku ON bronze_products(sku);
-CREATE INDEX IF NOT EXISTS idx_bronze_products_status ON bronze_products(status);
-CREATE INDEX IF NOT EXISTS idx_bronze_products_created ON bronze_products(created_at);
+PRINT '✅ Bronze layer tables created successfully';
+GO
