@@ -127,6 +127,18 @@ sql-data-warehouse-project/
 - ✅ Lookup dimensions (payment, shipping methods)
 - ✅ Fact tables with foreign key relationships
 
+### 🆕 Enhanced Architecture (NEW!)
+- ✅ **Generic API Adapter Interface** - Plugin-based architecture for multiple data sources
+- ✅ **Data Source Registry** - Config-driven source management
+- ✅ **Data Validation Framework** - Great Expectations integration
+- ✅ **Error Handler with DLQ** - Dead Letter Queue for failed records
+- ✅ **API Testing Dashboard** - Web UI for testing and monitoring
+- ✅ **Real-time Quality Metrics** - Data profiling and validation
+- ✅ **Schema Validation** - Automatic schema detection and validation
+- ✅ **Error Tracking** - Centralized error logging and categorization
+
+> 📖 **See [Enhanced Architecture Guide](docs/ENHANCED_ARCHITECTURE.md) for detailed documentation**
+
 ## Prerequisites
 
 - Python 3.8 or higher
@@ -429,6 +441,64 @@ CREATE TABLE IF NOT EXISTS bronze_new_entity (
    - Review transformation logs
    - Check source data format
    - Validate data types and constraints
+
+## 🚀 API Testing Dashboard
+
+### Quick Start
+
+Start the dashboard:
+```bash
+python start_dashboard.py --port 5000
+```
+
+Access the dashboard at: `http://localhost:5000`
+
+### Dashboard Features
+
+1. **API Testing**
+   - Test all API endpoints
+   - View real-time responses
+   - Pagination support
+   - Error handling
+
+2. **Data Validation**
+   - Schema validation
+   - Quality checks
+   - Data profiling
+   - Type verification
+
+3. **Quality Metrics**
+   - Row/column counts
+   - Null value analysis
+   - Duplicate detection
+   - Statistical summaries
+
+4. **Error Tracking**
+   - Error summary by severity
+   - DLQ file management
+   - Error categorization
+   - Retry mechanisms
+
+5. **Multi-Source Support**
+   - Test multiple data sources
+   - Connection validation
+   - Config-driven setup
+   - Real-time monitoring
+
+### Configuration
+
+Update `config/data_sources.yaml` to configure data sources:
+
+```yaml
+data_sources:
+  salla:
+    enabled: true
+    api_token: ${SALLA_API_TOKEN}
+    base_url: ${SALLA_API_BASE_URL}
+    batch_size: 100
+```
+
+See [Enhanced Architecture Guide](docs/ENHANCED_ARCHITECTURE.md) for complete documentation.
 
 ## Contributing
 

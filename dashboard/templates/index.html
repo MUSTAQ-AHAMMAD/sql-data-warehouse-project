@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Testing Dashboard - ETL Pipeline</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> ETL Pipeline Dashboard</h1>
+                <p>API Testing & Data Quality Monitoring</p>
+            </div>
+            <div class="header-actions">
+                <button id="refreshBtn" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #3498db;">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalSources">0</h3>
+                    <p>Data Sources</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e74c3c;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalErrors">0</h3>
+                    <p>Total Errors</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #f39c12;">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="dlqCount">0</h3>
+                    <p>DLQ Records</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #2ecc71;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="healthStatus">Healthy</h3>
+                    <p>System Status</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel: Data Sources -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-plug"></i> Data Sources</h2>
+                </div>
+                <div class="panel-body">
+                    <div id="sourcesList" class="sources-list">
+                        <div class="loading">Loading data sources...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Panel: API Testing -->
+            <div class="panel main-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-flask"></i> API Testing</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="test-controls">
+                        <div class="form-group">
+                            <label for="sourceSelect">Data Source:</label>
+                            <select id="sourceSelect" class="form-control">
+                                <option value="">Select a source...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="entitySelect">Entity Type:</label>
+                            <select id="entitySelect" class="form-control">
+                                <option value="">Select an entity...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pageInput">Page:</label>
+                            <input type="number" id="pageInput" class="form-control" value="1" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="perPageInput">Per Page:</label>
+                            <input type="number" id="perPageInput" class="form-control" value="10" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <button id="fetchBtn" class="btn btn-success">
+                                <i class="fas fa-download"></i> Fetch Data
+                            </button>
+                            <button id="validateBtn" class="btn btn-warning">
+                                <i class="fas fa-check"></i> Validate
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="apiResponse" class="api-response">
+                        <div class="response-placeholder">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Select a data source and entity type, then click "Fetch Data" to test the API</p>
+                        </div>
+                    </div>
+
+                    <div id="validationResults" class="validation-results" style="display: none;">
+                        <h3>Validation Results</h3>
+                        <div id="validationContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Error Tracking -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-bug"></i> Error Tracking</h2>
+                </div>
+                <div class="panel-body">
+                    <div id="errorSummary" class="error-summary">
+                        <div class="loading">Loading error summary...</div>
+                    </div>
+                    
+                    <div class="dlq-section">
+                        <h3><i class="fas fa-inbox"></i> Dead Letter Queue</h3>
+                        <div id="dlqList" class="dlq-list">
+                            <div class="loading">Loading DLQ files...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Quality Metrics Section -->
+        <div class="panel full-width">
+            <div class="panel-header">
+                <h2><i class="fas fa-chart-bar"></i> Data Quality Metrics</h2>
+            </div>
+            <div class="panel-body">
+                <div id="qualityMetrics" class="quality-metrics">
+                    <div class="metrics-placeholder">
+                        <i class="fas fa-chart-pie"></i>
+                        <p>Fetch and validate data to see quality metrics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="/static/js/api_tester.js"></script>
+</body>
+</html>

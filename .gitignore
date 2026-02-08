@@ -64,3 +64,11 @@ htmlcov/
 # Temporary files
 tmp/
 *.tmp
+
+# Data Quality & DLQ
+data/dlq/
+*.dlq
+
+# Great Expectations
+great_expectations/
+uncommitted/
