@@ -27,3 +27,16 @@ python-dotenv==1.0.0
 
 # Utilities
 pytz==2023.3
+
+# Data Validation
+great-expectations==0.18.8
+
+# Web Dashboard
+Flask==3.0.0
+Flask-CORS==4.0.0
+
+# Visualization
+plotly==5.18.0
+
+# Configuration
+PyYAML==6.0.1
