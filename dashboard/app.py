@@ -20,6 +20,7 @@ import pandas as pd
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.api.data_source_registry import get_registry
+from src.api.salla_adapter import SallaAPIAdapter
 from src.api.salla_connector import SallaAPIConnector
 from src.utils.data_validator import DataValidator
 from src.utils.error_handler import ErrorHandler
@@ -38,6 +39,9 @@ logger = logging.getLogger(__name__)
 
 # Initialize components
 registry = get_registry()
+# Register Salla adapter
+registry.register_adapter('salla', SallaAPIAdapter)
+
 validator = DataValidator()
 error_handler = ErrorHandler()
 
@@ -345,14 +349,9 @@ if __name__ == '__main__':
     logger.info(f"Starting API Testing Dashboard on {DASHBOARD_HOST}:{DASHBOARD_PORT}")
     logger.info(f"Debug mode: {DASHBOARD_DEBUG}")
     
-    # Register Salla adapter (example)
-    try:
-        from src.api.salla_connector import SallaAPIConnector
-        # Note: SallaAPIConnector would need to inherit from GenericAPIAdapter
-        # This is a placeholder - actual implementation would require refactoring
-        logger.info("Salla connector available")
-    except Exception as e:
-        logger.warning(f"Could not load Salla connector: {str(e)}")
+    # Ensure adapters are registered
+    logger.info(f"Registered data sources: {registry.list_sources()}")
+    logger.info(f"Configured data sources: {registry.list_configured_sources()}")
     
     app.run(
         host=DASHBOARD_HOST,
