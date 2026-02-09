@@ -549,6 +549,60 @@ data_sources:
 
 See [Enhanced Architecture Guide](docs/ENHANCED_ARCHITECTURE.md) for complete documentation.
 
+## 🏥 Health Monitoring Dashboard
+
+### Quick Start
+
+Start the monitoring dashboard:
+```bash
+python start_monitoring.py --port 5001
+```
+
+Access the dashboard at: `http://localhost:5001`
+
+### Dashboard Features
+
+1. **Real-time Health Monitoring**
+   - Auto-refreshes every 10 seconds
+   - Overall system health status
+   - Component-level status tracking
+
+2. **Database Status**
+   - Connection health
+   - Database version information
+   - Real-time connectivity checks
+
+3. **API Status**
+   - Salla API connectivity
+   - Configuration validation
+   - Token status
+
+4. **Data Layers Metrics**
+   - Bronze layer record counts (Orders, Customers, Products)
+   - Silver layer record counts
+   - Gold layer record counts (Dimensions and Facts)
+
+5. **ETL Pipeline Tracking**
+   - Last load timestamps
+   - Records loaded per entity
+   - Load duration and rate metrics
+   - Watermark tracking
+
+6. **REST API Endpoints**
+   - `/api/health` - Get overall health status
+   - `/api/stats` - Get detailed statistics
+
+### Configuration
+
+Configure using environment variables in `.env`:
+```bash
+MONITORING_HOST=0.0.0.0
+MONITORING_PORT=5001
+MONITORING_DEBUG=False
+```
+
+See [MONITORING_GUIDE.md](MONITORING_GUIDE.md) for complete documentation.
+
 ## Contributing
 
 Contributions are welcome! Please follow these guidelines:

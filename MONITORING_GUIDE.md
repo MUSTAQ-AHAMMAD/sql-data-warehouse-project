@@ -1,5 +1,17 @@
 # Health Monitoring Dashboard Guide
 
+## Quick Start
+
+```bash
+# Start the monitoring dashboard (default port 5001)
+python start_monitoring.py
+
+# Or specify a custom port
+python start_monitoring.py --port 5002
+```
+
+Then access the dashboard at: http://localhost:5001 (or your custom port)
+
 ## Overview
 The Health Monitoring Dashboard provides real-time visibility into your Salla Data Warehouse infrastructure. It monitors database connectivity, API status, data layer health, and ETL pipeline execution.
 
@@ -13,13 +25,29 @@ The Health Monitoring Dashboard provides real-time visibility into your Salla Da
 
 ## Starting the Dashboard
 
-### Method 1: Direct Python Execution
+### Method 1: Using the Convenience Script (Recommended)
+```bash
+cd /path/to/sql-data-warehouse-project
+python start_monitoring.py
+```
+
+With custom port:
+```bash
+python start_monitoring.py --port 5001
+```
+
+With custom host and debug mode:
+```bash
+python start_monitoring.py --host 0.0.0.0 --port 5001 --debug
+```
+
+### Method 2: Direct Python Execution
 ```bash
 cd /path/to/sql-data-warehouse-project
 python monitoring/health_dashboard.py
 ```
 
-### Method 2: Using Environment Variables
+### Method 3: Using Environment Variables
 ```bash
 export MONITORING_PORT=5001
 export MONITORING_HOST=0.0.0.0
@@ -27,15 +55,15 @@ export MONITORING_DEBUG=False
 python monitoring/health_dashboard.py
 ```
 
-### Method 3: As a Background Service (Linux/Mac)
+### Method 4: As a Background Service (Linux/Mac)
 ```bash
-nohup python monitoring/health_dashboard.py > monitoring.log 2>&1 &
+nohup python start_monitoring.py > monitoring.log 2>&1 &
 ```
 
-### Method 4: As a Windows Service
+### Method 5: As a Windows Service
 ```powershell
 # Using PowerShell
-Start-Process python -ArgumentList "monitoring/health_dashboard.py" -WindowStyle Hidden
+Start-Process python -ArgumentList "start_monitoring.py --port 5001" -WindowStyle Hidden
 ```
 
 ## Accessing the Dashboard
