@@ -71,10 +71,8 @@ class PowerBIConnector:
         """
         logger.info("Creating vw_Sales_Overview view...")
         
-        view_query = """
-        IF OBJECT_ID('PowerBI.vw_Sales_Overview', 'V') IS NOT NULL
-            DROP VIEW PowerBI.vw_Sales_Overview;
-        """
+        # Drop view if exists (works on both SQL Server and Snowflake)
+        drop_query = "DROP VIEW IF EXISTS PowerBI.vw_Sales_Overview"
         
         # Create view
         create_query = """
@@ -95,7 +93,7 @@ class PowerBIConnector:
         
         try:
             with self.db as conn:
-                conn.execute_query(view_query)
+                conn.execute_query(drop_query)
                 conn.execute_query(create_query)
                 logger.info("✅ Created vw_Sales_Overview")
         except Exception as e:
@@ -114,10 +112,7 @@ class PowerBIConnector:
         """
         logger.info("Creating vw_Order_Details view...")
         
-        view_query = """
-        IF OBJECT_ID('PowerBI.vw_Order_Details', 'V') IS NOT NULL
-            DROP VIEW PowerBI.vw_Order_Details;
-        """
+        drop_query = "DROP VIEW IF EXISTS PowerBI.vw_Order_Details"
         
         create_query = """
         CREATE VIEW PowerBI.vw_Order_Details AS
@@ -142,7 +137,7 @@ class PowerBIConnector:
         
         try:
             with self.db as conn:
-                conn.execute_query(view_query)
+                conn.execute_query(drop_query)
                 conn.execute_query(create_query)
                 logger.info("✅ Created vw_Order_Details")
         except Exception as e:
@@ -161,10 +156,7 @@ class PowerBIConnector:
         """
         logger.info("Creating vw_Product_Performance view...")
         
-        view_query = """
-        IF OBJECT_ID('PowerBI.vw_Product_Performance', 'V') IS NOT NULL
-            DROP VIEW PowerBI.vw_Product_Performance;
-        """
+        drop_query = "DROP VIEW IF EXISTS PowerBI.vw_Product_Performance"
         
         create_query = """
         CREATE VIEW PowerBI.vw_Product_Performance AS
@@ -198,7 +190,7 @@ class PowerBIConnector:
         
         try:
             with self.db as conn:
-                conn.execute_query(view_query)
+                conn.execute_query(drop_query)
                 conn.execute_query(create_query)
                 logger.info("✅ Created vw_Product_Performance")
         except Exception as e:
@@ -217,12 +209,20 @@ class PowerBIConnector:
         """
         logger.info("Creating vw_Customer_Analysis view...")
         
-        view_query = """
-        IF OBJECT_ID('PowerBI.vw_Customer_Analysis', 'V') IS NOT NULL
-            DROP VIEW PowerBI.vw_Customer_Analysis;
-        """
+        # Get database-specific functions
+        from src.database.database_factory import get_database_type
+        db_type = get_database_type()
         
-        create_query = """
+        if db_type == 'snowflake':
+            current_date_func = 'CURRENT_DATE()'
+            datediff_expr = 'DATEDIFF(day, c.registration_date, CURRENT_DATE())'
+        else:  # SQL Server
+            current_date_func = 'GETDATE()'
+            datediff_expr = 'DATEDIFF(day, c.registration_date, GETDATE())'
+        
+        drop_query = "DROP VIEW IF EXISTS PowerBI.vw_Customer_Analysis"
+        
+        create_query = f"""
         CREATE VIEW PowerBI.vw_Customer_Analysis AS
         SELECT 
             c.customer_id as CustomerID,
@@ -240,7 +240,7 @@ class PowerBIConnector:
             AVG(o.amount) as AverageOrderValue,
             MAX(o.order_date) as LastOrderDate,
             MIN(o.order_date) as FirstOrderDate,
-            DATEDIFF(day, c.registration_date, GETDATE()) as DaysSinceRegistration,
+            {datediff_expr} as DaysSinceRegistration,
             CASE 
                 WHEN COUNT(DISTINCT o.order_id) = 0 THEN 'Inactive'
                 WHEN COUNT(DISTINCT o.order_id) = 1 THEN 'One-Time Buyer'
@@ -257,7 +257,7 @@ class PowerBIConnector:
         
         try:
             with self.db as conn:
-                conn.execute_query(view_query)
+                conn.execute_query(drop_query)
                 conn.execute_query(create_query)
                 logger.info("✅ Created vw_Customer_Analysis")
         except Exception as e:

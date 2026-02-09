@@ -35,6 +35,10 @@ class IncrementalManager:
     def _ensure_watermark_table(self):
         """Create watermark tracking table if it doesn't exist."""
         try:
+            # Get database type for SQL dialect
+            from src.database.database_factory import get_database_type
+            db_type = get_database_type()
+            
             with self.db as conn:
                 # Check if table exists
                 check_query = """
@@ -47,18 +51,31 @@ class IncrementalManager:
                 result = conn.execute_query(check_query)
                 
                 if result[0]['cnt'] == 0:
-                    # Create watermark table
-                    create_query = """
-                        CREATE TABLE BRONZE.load_watermarks (
-                            entity_name VARCHAR(100) PRIMARY KEY,
-                            last_load_timestamp DATETIME NOT NULL,
-                            records_loaded INT DEFAULT 0,
-                            load_duration_seconds FLOAT DEFAULT 0,
-                            load_rate_records_per_sec FLOAT DEFAULT 0,
-                            created_at DATETIME DEFAULT GETDATE(),
-                            updated_at DATETIME DEFAULT GETDATE()
-                        )
-                    """
+                    # Create watermark table with database-specific SQL
+                    if db_type == 'snowflake':
+                        create_query = """
+                            CREATE TABLE BRONZE.load_watermarks (
+                                entity_name VARCHAR(100) PRIMARY KEY,
+                                last_load_timestamp TIMESTAMP_NTZ NOT NULL,
+                                records_loaded INT DEFAULT 0,
+                                load_duration_seconds FLOAT DEFAULT 0,
+                                load_rate_records_per_sec FLOAT DEFAULT 0,
+                                created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+                                updated_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+                            )
+                        """
+                    else:  # SQL Server
+                        create_query = """
+                            CREATE TABLE BRONZE.load_watermarks (
+                                entity_name VARCHAR(100) PRIMARY KEY,
+                                last_load_timestamp DATETIME NOT NULL,
+                                records_loaded INT DEFAULT 0,
+                                load_duration_seconds FLOAT DEFAULT 0,
+                                load_rate_records_per_sec FLOAT DEFAULT 0,
+                                created_at DATETIME DEFAULT GETDATE(),
+                                updated_at DATETIME DEFAULT GETDATE()
+                            )
+                        """
                     conn.execute_query(create_query)
                     logger.info("✅ Created watermark tracking table")
                     
@@ -110,21 +127,23 @@ class IncrementalManager:
         """
         try:
             rate = records_loaded / duration_seconds if duration_seconds > 0 else 0
+            current_time = datetime.now()
             
             with self.db as conn:
-                # Try to update existing record
+                # Try to update existing record (using current_time instead of GETDATE())
                 update_query = """
                     UPDATE BRONZE.load_watermarks 
                     SET last_load_timestamp = ?,
                         records_loaded = ?,
                         load_duration_seconds = ?,
                         load_rate_records_per_sec = ?,
-                        updated_at = GETDATE()
+                        updated_at = ?
                     WHERE entity_name = ?
                 """
                 
                 conn.execute_query(update_query, 
-                                 (timestamp, records_loaded, duration_seconds, rate, entity_name))
+                                 (timestamp, records_loaded, duration_seconds, rate, 
+                                  current_time, entity_name))
                 
                 # If no rows were updated, insert new record
                 check_query = """
@@ -138,12 +157,13 @@ class IncrementalManager:
                     insert_query = """
                         INSERT INTO BRONZE.load_watermarks 
                         (entity_name, last_load_timestamp, records_loaded, 
-                         load_duration_seconds, load_rate_records_per_sec)
-                        VALUES (?, ?, ?, ?, ?)
+                         load_duration_seconds, load_rate_records_per_sec, 
+                         created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
                     """
                     conn.execute_query(insert_query, 
                                      (entity_name, timestamp, records_loaded, 
-                                      duration_seconds, rate))
+                                      duration_seconds, rate, current_time, current_time))
                 
                 logger.info(f"✅ Updated watermark for {entity_name}: "
                           f"{records_loaded} records in {duration_seconds:.2f}s "

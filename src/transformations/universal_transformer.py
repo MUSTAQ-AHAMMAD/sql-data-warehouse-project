@@ -32,6 +32,35 @@ class UniversalTransformer:
         self.db_type = get_database_type()
         logger.info(f"Initialized Universal Transformer for {self.db_type}")
     
+    def _get_current_timestamp_sql(self) -> str:
+        """
+        Get the appropriate SQL function for current timestamp based on database type.
+        
+        Returns:
+            SQL function string for current timestamp
+        """
+        if self.db_type == 'snowflake':
+            return 'CURRENT_TIMESTAMP()'
+        else:  # SQL Server
+            return 'GETDATE()'
+    
+    def _get_datediff_sql(self, unit: str, start: str, end: str) -> str:
+        """
+        Get the appropriate DATEDIFF SQL based on database type.
+        
+        Args:
+            unit: Time unit (day, hour, etc.)
+            start: Start date expression
+            end: End date expression
+            
+        Returns:
+            DATEDIFF SQL expression
+        """
+        if self.db_type == 'snowflake':
+            return f"DATEDIFF({unit}, {start}, {end})"
+        else:  # SQL Server
+            return f"DATEDIFF({unit}, {start}, {end})"
+    
     def execute_transformation(self, transformation_name: str, 
                               query: str, params: Optional[tuple] = None) -> int:
         """
@@ -113,9 +142,11 @@ class UniversalTransformer:
         """
         logger.info(f"Transforming {entity_type} from Bronze to Silver")
         
+        current_ts = self._get_current_timestamp_sql()
+        
         # Define transformation queries based on entity type
         if entity_type == 'orders':
-            query = """
+            query = f"""
                 INSERT INTO SILVER.silver_orders (
                     order_id, reference_id, status, amount, currency,
                     customer_id, customer_name, payment_method, 
@@ -124,12 +155,12 @@ class UniversalTransformer:
                 SELECT 
                     id, reference_id, status, amount, currency,
                     customer_id, customer_name, payment_method,
-                    created_at, loaded_at, GETDATE(), source_system
+                    created_at, loaded_at, {current_ts}, source_system
                 FROM BRONZE.bronze_orders
                 WHERE id NOT IN (SELECT order_id FROM SILVER.silver_orders)
             """
         elif entity_type == 'customers':
-            query = """
+            query = f"""
                 INSERT INTO SILVER.silver_customers (
                     customer_id, full_name, first_name, last_name,
                     email, mobile, country, city, gender,
@@ -139,12 +170,12 @@ class UniversalTransformer:
                     id, 
                     CONCAT(first_name, ' ', last_name) as full_name,
                     first_name, last_name, email, mobile, country, city, gender,
-                    created_at, loaded_at, GETDATE(), source_system
+                    created_at, loaded_at, {current_ts}, source_system
                 FROM BRONZE.bronze_customers
                 WHERE id NOT IN (SELECT customer_id FROM SILVER.silver_customers)
             """
         elif entity_type == 'products':
-            query = """
+            query = f"""
                 INSERT INTO SILVER.silver_products (
                     product_id, product_name, description, price, 
                     sale_price, cost_price, sku, quantity, status,
@@ -153,7 +184,7 @@ class UniversalTransformer:
                 SELECT 
                     id, name, description, price,
                     sale_price, cost_price, sku, quantity, status,
-                    loaded_at, GETDATE(), source_system
+                    loaded_at, {current_ts}, source_system
                 FROM BRONZE.bronze_products
                 WHERE id NOT IN (SELECT product_id FROM SILVER.silver_products)
             """
@@ -177,9 +208,11 @@ class UniversalTransformer:
         """
         logger.info(f"Transforming {entity_type} from Silver to Gold")
         
+        current_ts = self._get_current_timestamp_sql()
+        
         # Define transformation queries based on entity type
         if entity_type == 'dim_customers':
-            query = """
+            query = f"""
                 INSERT INTO GOLD.gold_dim_customers (
                     customer_id, full_name, first_name, last_name,
                     email, mobile, country, city, gender,
@@ -189,8 +222,8 @@ class UniversalTransformer:
                 SELECT 
                     customer_id, full_name, first_name, last_name,
                     email, mobile, country, city, gender,
-                    registration_date, GETDATE(), '9999-12-31',
-                    1, GETDATE(), GETDATE()
+                    registration_date, {current_ts}, '9999-12-31',
+                    1, {current_ts}, {current_ts}
                 FROM SILVER.silver_customers
                 WHERE customer_id NOT IN (
                     SELECT customer_id FROM GOLD.gold_dim_customers 
@@ -198,7 +231,7 @@ class UniversalTransformer:
                 )
             """
         elif entity_type == 'dim_products':
-            query = """
+            query = f"""
                 INSERT INTO GOLD.gold_dim_products (
                     product_id, product_name, description, price,
                     sale_price, cost_price, sku, category,
@@ -208,8 +241,8 @@ class UniversalTransformer:
                 SELECT 
                     product_id, product_name, description, price,
                     sale_price, cost_price, sku, 'General',
-                    GETDATE(), '9999-12-31', 1,
-                    GETDATE(), GETDATE()
+                    {current_ts}, '9999-12-31', 1,
+                    {current_ts}, {current_ts}
                 FROM SILVER.silver_products
                 WHERE product_id NOT IN (
                     SELECT product_id FROM GOLD.gold_dim_products 
@@ -217,7 +250,9 @@ class UniversalTransformer:
                 )
             """
         elif entity_type == 'fact_orders':
-            query = """
+            # Note: This is a simplified fact table. In production, you would join with 
+            # order items to get actual product_id, quantity, and unit_price
+            query = f"""
                 INSERT INTO GOLD.gold_fact_orders (
                     order_id, customer_id, product_id, order_date,
                     quantity, unit_price, total_amount, currency,
@@ -227,7 +262,7 @@ class UniversalTransformer:
                     o.order_id, o.customer_id, 1 as product_id,
                     o.order_date, 1 as quantity, o.amount as unit_price,
                     o.amount as total_amount, o.currency,
-                    o.status, o.payment_method, GETDATE()
+                    o.status, o.payment_method, {current_ts}
                 FROM SILVER.silver_orders o
                 WHERE o.order_id NOT IN (
                     SELECT order_id FROM GOLD.gold_fact_orders
