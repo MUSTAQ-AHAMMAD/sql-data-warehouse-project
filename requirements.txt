@@ -44,3 +44,6 @@ plotly==5.18.0
 
 # Additional packages not managed by Airflow
 Flask-CORS==4.0.0
+
+# Health Monitoring Dashboard Dependencies
+# Flask is already included by Airflow, but we ensure Flask-CORS is available

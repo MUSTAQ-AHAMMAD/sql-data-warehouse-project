@@ -1,0 +1,504 @@
+================================================================================
+POWER BI CONNECTION GUIDE - SALLA DATA WAREHOUSE
+================================================================================
+
+This guide will help you connect Power BI Desktop to your Salla Data Warehouse
+and create insightful dashboards using the pre-configured views.
+
+================================================================================
+SECTION 1: PREREQUISITES
+================================================================================
+
+Before connecting Power BI, ensure:
+
+1. ✅ Power BI Desktop is installed
+   Download from: https://powerbi.microsoft.com/desktop/
+
+2. ✅ Database is accessible
+   - SQL Server: Ensure SQL Server service is running
+   - Snowflake: Have account credentials ready
+
+3. ✅ Power BI views are created
+   Run: python src/powerbi/powerbi_connector.py
+   Or: python run_complete_pipeline.py --sample
+
+4. ✅ Network connectivity
+   - SQL Server: Check Windows Firewall allows connections
+   - Snowflake: Internet connection required
+
+================================================================================
+SECTION 2: CONNECTION STRINGS
+================================================================================
+
+FOR SQL SERVER (DEFAULT):
+-------------------------
+Server: localhost\SQLEXPRESS
+Database: SALLA_DWH
+Authentication: Windows Authentication
+
+Connection String:
+Server=localhost\SQLEXPRESS;Database=SALLA_DWH;Trusted_Connection=yes;
+
+FOR SNOWFLAKE:
+-------------
+Account: your_account.snowflakecomputing.com
+Warehouse: your_warehouse
+Database: SALLA_DWH
+Schema: PowerBI
+
+Connection String:
+Account=your_account;Warehouse=your_warehouse;Database=SALLA_DWH;
+
+================================================================================
+SECTION 3: CONNECTING POWER BI TO SQL SERVER
+================================================================================
+
+Step 1: Open Power BI Desktop
+------------------------------
+- Launch Power BI Desktop application
+- Click "Get Data" or use Home tab > Get Data
+
+Step 2: Select SQL Server
+--------------------------
+- In Get Data dialog, search for "SQL Server"
+- Click "SQL Server" database connector
+- Click "Connect"
+
+Step 3: Enter Connection Details
+---------------------------------
+- Server: localhost\SQLEXPRESS
+  (or your SQL Server instance name)
+- Database: SALLA_DWH
+  (optional but recommended)
+- Data Connectivity Mode: Import
+  (recommended for best performance)
+- Click "OK"
+
+Step 4: Authentication
+----------------------
+- Select "Windows" authentication
+- Click "Connect"
+
+If using SQL Server authentication:
+- Select "Database" authentication
+- Enter Username and Password
+- Click "Connect"
+
+Step 5: Select Power BI Views
+------------------------------
+In the Navigator window, expand:
+- SALLA_DWH database
+- PowerBI schema
+
+Select these views:
+  ☑️ vw_Sales_Overview
+  ☑️ vw_Order_Details
+  ☑️ vw_Product_Performance
+  ☑️ vw_Customer_Analysis
+
+Click "Load" to import data
+Or "Transform Data" to modify in Power Query
+
+Step 6: Wait for Data Load
+---------------------------
+Power BI will load the data from selected views.
+This may take a few moments depending on data volume.
+
+================================================================================
+SECTION 4: CONNECTING POWER BI TO SNOWFLAKE
+================================================================================
+
+Step 1: Open Power BI Desktop
+------------------------------
+- Launch Power BI Desktop
+- Click "Get Data"
+
+Step 2: Select Snowflake
+-------------------------
+- Search for "Snowflake"
+- Click "Snowflake" connector
+- Click "Connect"
+
+Step 3: Enter Snowflake Details
+--------------------------------
+- Server: your_account.snowflakecomputing.com
+- Warehouse: your_warehouse_name
+- Click "OK"
+
+Step 4: Authentication
+----------------------
+- Enter Snowflake Username
+- Enter Snowflake Password
+- Click "Connect"
+
+Step 5: Select Database and Views
+----------------------------------
+- Navigate to SALLA_DWH database
+- Expand PowerBI schema
+- Select the Power BI views
+- Click "Load"
+
+================================================================================
+SECTION 5: AVAILABLE POWER BI VIEWS
+================================================================================
+
+1. vw_Sales_Overview
+--------------------
+Daily sales metrics and trends
+
+Columns:
+- OrderDate: Date of orders
+- TotalOrders: Number of orders
+- UniqueCustomers: Distinct customers
+- TotalSales: Total sales amount
+- AverageOrderValue: Average order amount
+- Currency: Currency code (SAR)
+- CompletedOrders: Completed order count
+- PendingOrders: Pending order count
+- CancelledOrders: Cancelled order count
+
+Use for:
+- Sales trend analysis
+- Daily performance tracking
+- Order status distribution
+- Customer acquisition metrics
+
+2. vw_Order_Details
+--------------------
+Individual order records with customer information
+
+Columns:
+- OrderID: Unique order identifier
+- ReferenceID: Order reference number
+- OrderDate: Order timestamp
+- OrderStatus: Order status
+- Amount: Order amount
+- Currency: Currency code
+- PaymentMethod: Payment method used
+- CustomerID: Customer identifier
+- CustomerName: Customer full name
+- CustomerEmail: Customer email
+- CustomerCity: Customer city
+- CustomerCountry: Customer country
+- CreatedAt: Record creation timestamp
+- UpdatedAt: Record update timestamp
+
+Use for:
+- Order detail analysis
+- Customer order history
+- Payment method analysis
+- Geographic sales distribution
+
+3. vw_Product_Performance
+--------------------------
+Product-level analytics and metrics
+
+Columns:
+- ProductID: Product identifier
+- ProductName: Product name
+- SKU: Stock keeping unit
+- Price: Base price
+- SalePrice: Discounted price (if applicable)
+- CostPrice: Cost price
+- CurrentStock: Current inventory
+- Status: Product status
+- StockStatus: Stock level category (In Stock/Low Stock/Out of Stock)
+- DiscountPercentage: Discount percentage
+- EffectivePrice: Actual selling price
+- CreatedAt: Product creation date
+- UpdatedAt: Last update date
+
+Use for:
+- Product performance tracking
+- Inventory management
+- Pricing analysis
+- Profit margin calculation
+
+4. vw_Customer_Analysis
+------------------------
+Customer metrics and segmentation
+
+Columns:
+- CustomerID: Customer identifier
+- CustomerName: Full name
+- FirstName: First name
+- LastName: Last name
+- Email: Email address
+- Mobile: Phone number
+- Gender: Customer gender
+- City: Customer city
+- Country: Customer country
+- RegistrationDate: Registration timestamp
+- TotalOrders: Number of orders placed
+- TotalSpent: Total amount spent
+- AverageOrderValue: Average per order
+- LastOrderDate: Most recent order date
+- FirstOrderDate: First order date
+- DaysSinceRegistration: Days since registration
+- CustomerSegment: Segment category
+  * Inactive: No orders
+  * One-Time Buyer: 1 order
+  * Occasional Buyer: 2-4 orders
+  * Regular Customer: 5+ orders
+
+Use for:
+- Customer lifetime value analysis
+- Segmentation and targeting
+- Retention analysis
+- Marketing campaign planning
+
+================================================================================
+SECTION 6: QUICK DASHBOARD SETUP
+================================================================================
+
+Create a Sales Dashboard in 5 Minutes:
+---------------------------------------
+
+1. Sales Trend Chart
+   - Visual: Line Chart
+   - Data: vw_Sales_Overview
+   - Axis: OrderDate
+   - Values: TotalSales
+   - Legend: None
+
+2. Sales by Status
+   - Visual: Pie Chart
+   - Data: vw_Sales_Overview
+   - Legend: Order Status (use CompletedOrders, PendingOrders, CancelledOrders)
+   - Values: Count
+
+3. Top Products
+   - Visual: Bar Chart
+   - Data: vw_Product_Performance
+   - Axis: ProductName
+   - Values: CurrentStock or Price
+   - Sort: Descending
+
+4. Customer Distribution
+   - Visual: Map
+   - Data: vw_Customer_Analysis
+   - Location: City
+   - Size: TotalOrders
+   - Tooltip: CustomerName, TotalSpent
+
+5. Key Metrics Cards
+   - Visual: Card (create multiple)
+   - Data: vw_Sales_Overview
+   - Fields:
+     * SUM(TotalSales)
+     * SUM(TotalOrders)
+     * SUM(UniqueCustomers)
+     * AVERAGE(AverageOrderValue)
+
+6. Customer Segments
+   - Visual: Donut Chart
+   - Data: vw_Customer_Analysis
+   - Legend: CustomerSegment
+   - Values: COUNT(CustomerID)
+
+================================================================================
+SECTION 7: TROUBLESHOOTING
+================================================================================
+
+Problem: Cannot connect to SQL Server
+--------------------------------------
+Solutions:
+1. Verify SQL Server service is running
+   - Open Services (services.msc)
+   - Check "SQL Server (SQLEXPRESS)" is running
+
+2. Check server name
+   - Run: SELECT @@SERVERNAME in SSMS
+   - Use exact name in Power BI
+
+3. Enable TCP/IP (if needed)
+   - Open SQL Server Configuration Manager
+   - Enable TCP/IP protocol
+   - Restart SQL Server service
+
+4. Check Windows Firewall
+   - Allow port 1433 (SQL Server default)
+   - Or allow SQL Server executable
+
+Problem: Views not found
+------------------------
+Solutions:
+1. Create views first:
+   python src/powerbi/powerbi_connector.py
+
+2. Verify views exist in database:
+   SELECT * FROM INFORMATION_SCHEMA.VIEWS 
+   WHERE TABLE_SCHEMA = 'PowerBI'
+
+3. Refresh Power BI Navigator
+   - Close and reopen Navigator window
+
+Problem: Authentication failed
+-------------------------------
+Solutions:
+1. For Windows Auth:
+   - Ensure current Windows user has database access
+   - Run Power BI as administrator
+
+2. For SQL Server Auth:
+   - Verify username/password are correct
+   - Check SQL Server allows SQL authentication
+
+3. For Snowflake:
+   - Verify account URL is correct
+   - Check username/password
+   - Ensure warehouse has access to database
+
+Problem: Data not loading
+--------------------------
+Solutions:
+1. Check data exists in views:
+   SELECT COUNT(*) FROM PowerBI.vw_Sales_Overview
+
+2. Run complete pipeline to populate data:
+   python run_complete_pipeline.py --sample
+
+3. Increase Power BI timeout
+   - File > Options > Data Load
+   - Increase connection timeout
+
+4. Use smaller date ranges for initial load
+
+Problem: Slow performance
+--------------------------
+Solutions:
+1. Use Import mode instead of DirectQuery
+
+2. Apply filters in Power Query to reduce data volume
+
+3. Create indexes on view underlying tables
+
+4. Schedule automatic data refresh instead of DirectQuery
+
+5. Aggregate data at source for summary views
+
+================================================================================
+SECTION 8: BEST PRACTICES
+================================================================================
+
+1. DATA REFRESH
+   - Import mode: Schedule automatic refresh (Pro license required)
+   - DirectQuery: Real-time but slower performance
+   - Hybrid: Use aggregations with Import for summaries
+
+2. PERFORMANCE
+   - Apply filters early in Power Query
+   - Remove unnecessary columns
+   - Use Import mode for best performance
+   - Create relationships between views if needed
+
+3. SECURITY
+   - Use Windows Authentication when possible
+   - Don't share PBIX files with embedded credentials
+   - Use Power BI Service for secure sharing
+   - Implement row-level security if needed
+
+4. MAINTENANCE
+   - Schedule regular data refreshes
+   - Monitor refresh failures
+   - Update views as business requirements change
+   - Document dashboard purpose and metrics
+
+5. DESIGN
+   - Use consistent color schemes
+   - Add clear titles and labels
+   - Include filters for interactivity
+   - Test on different screen sizes
+   - Add tooltips for additional context
+
+================================================================================
+SECTION 9: GETTING THE CONNECTION STRING PROGRAMMATICALLY
+================================================================================
+
+You can get the exact connection string for your environment:
+
+Method 1: Using Python Script
+------------------------------
+python src/powerbi/powerbi_connector.py
+
+This will display:
+- Server name
+- Database name
+- Full connection string
+
+Method 2: Using PowerShell (SQL Server)
+----------------------------------------
+sqlcmd -Q "SELECT @@SERVERNAME"
+
+Method 3: Check Environment Variables
+--------------------------------------
+For SQL Server:
+echo %SQLSERVER_HOST%
+echo %SQLSERVER_DATABASE%
+
+For Snowflake:
+echo %SNOWFLAKE_ACCOUNT%
+echo %SNOWFLAKE_DATABASE%
+
+================================================================================
+SECTION 10: ADVANCED FEATURES
+================================================================================
+
+Custom DAX Measures
+-------------------
+Create calculated measures for advanced analytics:
+
+Total Revenue:
+TotalRevenue = SUM(vw_Order_Details[Amount])
+
+Revenue Growth:
+RevenueGrowth = 
+DIVIDE(
+    [TotalRevenue] - CALCULATE([TotalRevenue], DATEADD(vw_Sales_Overview[OrderDate], -1, MONTH)),
+    CALCULATE([TotalRevenue], DATEADD(vw_Sales_Overview[OrderDate], -1, MONTH))
+)
+
+Customer Lifetime Value:
+CLV = DIVIDE([TotalRevenue], DISTINCTCOUNT(vw_Customer_Analysis[CustomerID]))
+
+Relationships Between Views
+----------------------------
+Create relationships for cross-view analysis:
+1. vw_Order_Details[CustomerID] → vw_Customer_Analysis[CustomerID]
+2. vw_Order_Details[OrderID] → vw_Sales_Overview[OrderID] (if available)
+
+Parameters for Dynamic Filtering
+---------------------------------
+Create parameters for dynamic date ranges:
+1. Home > Manage Parameters > New Parameter
+2. Name: StartDate, Type: Date
+3. Use in filters for dynamic date range selection
+
+================================================================================
+SECTION 11: SUPPORT AND RESOURCES
+================================================================================
+
+Documentation:
+- README.md: Project overview
+- MONITORING_GUIDE.md: Health monitoring guide
+- docs/: Additional technical documentation
+
+Scripts:
+- run_complete_pipeline.py: Execute complete ETL
+- src/powerbi/powerbi_connector.py: Manage Power BI views
+- monitoring/health_dashboard.py: Monitor system health
+
+Power BI Resources:
+- Official Docs: https://docs.microsoft.com/power-bi/
+- Community: https://community.powerbi.com/
+- DAX Guide: https://dax.guide/
+
+================================================================================
+END OF GUIDE
+================================================================================
+
+For additional help or questions, please refer to the project documentation
+or contact the data engineering team.
+
+Last Updated: 2024-01-15
+Version: 1.0.0
