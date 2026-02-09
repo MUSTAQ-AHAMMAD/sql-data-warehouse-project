@@ -491,6 +491,29 @@ CREATE TABLE IF NOT EXISTS bronze_new_entity (
    - Check source data format
    - Validate data types and constraints
 
+5. **Git Merge Conflicts with Untracked Files**
+   - **Error**: "The following untracked working tree files would be overwritten by merge"
+   - **Cause**: Local untracked files conflict with files from remote branch
+   - **Solution Options**:
+     ```bash
+     # Option 1: Stash the files temporarily
+     git stash -u
+     git pull origin main
+     git stash pop
+     
+     # Option 2: Commit the files to your branch
+     git add .
+     git commit -m "Add local changes"
+     git pull origin main
+     
+     # Option 3: Backup and remove files
+     mkdir -p ~/backup
+     mv <conflicting-file> ~/backup/
+     git pull origin main
+     # Then manually merge if needed
+     ```
+   - **Prevention**: Regularly commit your changes and sync with remote branches
+
 ## 🚀 API Testing Dashboard
 
 ### Quick Start
@@ -607,11 +630,62 @@ See [MONITORING_GUIDE.md](MONITORING_GUIDE.md) for complete documentation.
 
 Contributions are welcome! Please follow these guidelines:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes with clear commit messages
-4. Add tests if applicable
-5. Submit a pull request
+### Development Workflow
+
+1. **Fork and Clone**
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/sql-data-warehouse-project.git
+   cd sql-data-warehouse-project
+   ```
+
+2. **Create a Feature Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Keep Your Branch Updated**
+   ```bash
+   # Before starting work
+   git fetch origin
+   git merge origin/main
+   
+   # Or use rebase for a cleaner history
+   git pull --rebase origin main
+   ```
+
+4. **Make Your Changes**
+   - Write clear, descriptive commit messages
+   - Follow existing code style and conventions
+   - Add tests if applicable
+   - Update documentation as needed
+
+5. **Commit Your Changes**
+   ```bash
+   git add .
+   git commit -m "feat: add meaningful description of changes"
+   ```
+
+6. **Handle Merge Conflicts**
+   - If you encounter untracked file conflicts:
+     ```bash
+     # Stash your changes
+     git stash -u
+     git pull origin main
+     git stash pop
+     
+     # Or commit first
+     git add .
+     git commit -m "WIP: save current work"
+     git pull origin main
+     ```
+
+7. **Submit a Pull Request**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+   - Open a PR on GitHub
+   - Provide a clear description of changes
+   - Link any related issues
 
 ## License
 
