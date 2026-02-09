@@ -3,14 +3,14 @@
 ## Quick Start
 
 ```bash
-# Start the monitoring dashboard on default port (5001)
+# Start the monitoring dashboard (default port 5001)
 python start_monitoring.py
 
-# Or with a custom port
-python start_monitoring.py --port 5001
+# Or specify a custom port
+python start_monitoring.py --port 5002
 ```
 
-Then access the dashboard at: http://localhost:5001
+Then access the dashboard at: http://localhost:5001 (or your custom port)
 
 ## Overview
 The Health Monitoring Dashboard provides real-time visibility into your Salla Data Warehouse infrastructure. It monitors database connectivity, API status, data layer health, and ETL pipeline execution.
