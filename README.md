@@ -94,6 +94,55 @@ sql-data-warehouse-project/
 └── README.md
 ```
 
+## 📊 Performance Analysis and Documentation
+
+### New: Data Fetch Performance Reports
+
+Comprehensive performance analysis and documentation for Salla API data fetching:
+
+- **📈 Performance Analyzer Tool** - Measure and analyze API fetch performance
+  - Real-time performance measurement
+  - Throughput analysis (records per second)
+  - Memory profiling
+  - Server impact assessment
+  - Time estimation for full data extraction
+  - Simulation mode for testing
+
+- **📑 Technical Documentation**
+  - [Data Fetch Performance Report](docs/DATA_FETCH_PERFORMANCE_REPORT.md) - Complete technical analysis
+  - [Quick Reference Guide](docs/DATA_FETCH_QUICK_REFERENCE.md) - At-a-glance metrics and commands
+  - [Salla Team Email Template](docs/SALLA_TEAM_EMAIL_TEMPLATE.md) - Ready-to-send notification
+  - [Performance Tool Guide](tools/README.md) - Analyzer usage and integration
+
+### Run Performance Analysis
+
+```bash
+# Quick analysis with simulation (no API calls)
+python tools/performance_analyzer.py --sample
+
+# Custom record estimates
+python tools/performance_analyzer.py --sample --orders 10000 --customers 5000 --products 2000
+
+# Live API testing (requires token)
+python tools/performance_analyzer.py
+
+# Export report to JSON
+python tools/performance_analyzer.py --sample --output performance_report.json
+```
+
+### Key Performance Metrics
+
+| Metric                    | Typical Value            | Status |
+|---------------------------|--------------------------|--------|
+| **Daily Load Time**       | 8-15 minutes             | ✅ Fast |
+| **Initial Load Time**     | 1-2 hours (one-time)     | ✅ Acceptable |
+| **Server Impact**         | LOW                      | ✅ Safe |
+| **Request Rate**          | ~120 requests/minute     | ✅ Conservative |
+| **Daily Data Transfer**   | 1-5 MB                   | ✅ Minimal |
+| **Memory Usage**          | <500 MB peak             | ✅ Efficient |
+
+> 📖 **See [Performance Report](docs/DATA_FETCH_PERFORMANCE_REPORT.md) for detailed analysis and [Quick Reference](docs/DATA_FETCH_QUICK_REFERENCE.md) for at-a-glance information**
+
 ## Features
 
 ### API Integration
