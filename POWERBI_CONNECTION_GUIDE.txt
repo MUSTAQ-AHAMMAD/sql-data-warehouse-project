@@ -486,7 +486,8 @@ Documentation:
 Scripts:
 - run_complete_pipeline.py: Execute complete ETL
 - src/powerbi/powerbi_connector.py: Manage Power BI views
-- monitoring/health_dashboard.py: Monitor system health
+- start_monitoring.py: Launch health monitoring dashboard
+- monitoring/health_dashboard.py: Monitor system health (direct access)
 
 Power BI Resources:
 - Official Docs: https://docs.microsoft.com/power-bi/
