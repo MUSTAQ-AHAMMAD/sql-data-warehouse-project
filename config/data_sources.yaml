@@ -16,6 +16,19 @@ data_sources:
       - customers
       - products
     
+  # Odoo ERP API
+  odoo:
+    enabled: true
+    api_token: ${ODOO_API_TOKEN}
+    base_url: ${ODOO_API_BASE_URL}
+    batch_size: 100
+    max_retries: 3
+    retry_delay: 5
+    description: "Odoo ERP Platform REST API"
+    supported_entities:
+      - sales_orders
+      - sales_order_lines
+
   # Example: Shopify API (template for future integration)
   shopify:
     enabled: false
