@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.api.data_source_registry import get_registry
 from src.api.salla_adapter import SallaAPIAdapter
+from src.api.odoo_adapter import OdooAPIAdapter
 
 
 def initialize_adapters():
@@ -17,13 +18,16 @@ def initialize_adapters():
     Initialize and register all API adapters.
     """
     registry = get_registry()
-    
+
     # Register Salla adapter
     registry.register_adapter('salla', SallaAPIAdapter)
-    
+
+    # Register Odoo adapter
+    registry.register_adapter('odoo', OdooAPIAdapter)
+
     print("API adapters initialized successfully")
     print(f"Registered sources: {registry.list_sources()}")
-    
+
     return registry
 
 
